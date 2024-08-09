@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <fstream>
 
 // ~~~~ handling command functions ~~~~
 // executes code based on command
@@ -28,6 +29,12 @@ void handleCommand(const Command& command, const std::vector<std::string>& args)
         case echo:
             printToScreen(args);
             break;
+        case touch:
+            createFile(args);
+            break;
+        case rm:
+            removeFile(args);
+            break;
         case undefined:
             std::cout << "Please provide a valid command." << std::endl;
             break;
@@ -46,6 +53,10 @@ Command decodeCommand(const std::string& command){
         return pwd;
     if(command == "echo")
         return echo;
+    if(command == "touch")
+        return touch;
+    if(command == "rm")
+        return rm;
     if(command == "clear")
         return clear;
     return undefined;
@@ -62,8 +73,9 @@ void changeDir(const std::filesystem::path& path){
 // ls command
 void listFiles(const std::filesystem::path& path){
     for (const auto &entry : std::filesystem::directory_iterator(path)){
-        std::cout << entry << std::endl;
+        std::cout << entry.path().filename().string() << "  ";
     }
+    std::cout << std::endl;
 }
 
 // echo command
@@ -82,6 +94,24 @@ void printToScreen(const std::vector<std::string>& args){
         text << args[i];
     }
     std::cout << text.str() << std::endl;
+}
+
+void createFile(const std::vector<std::string>& filenames){
+    for(const std::string& filename : filenames){
+        std::ofstream file(filename);
+
+        file.close();
+    }
+}
+
+void removeFile(const std::vector<std::string>& filenames){
+    if(filenames.size() > 0){
+        for(const std::string& filename : filenames){
+            std::filesystem::remove(filename);
+        }
+    } else {
+        std::cout << "rm: missing operand" << std::endl;
+    }
 }
 
 // clear command

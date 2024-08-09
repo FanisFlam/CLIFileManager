@@ -13,8 +13,11 @@ enum Command
     cd,
     ls,
     pwd,
-    mkdir,
     echo,
+    touch,
+    rm,
+    mkdir,
+    rmdir,
     clear,
     undefined
 };
@@ -27,6 +30,12 @@ Command decodeCommand(const std::string& command);
 void changeDir(const std::filesystem::path& path);
 void listFiles(const std::filesystem::path& path);
 void printToScreen(const std::vector<std::string>& args);
+
+// file commands
+void createFile(const std::vector<std::string>& filenames);
+void removeFile(const std::vector<std::string> &args);
+
+// clear screen
 void clearScreen();
 
 #endif
