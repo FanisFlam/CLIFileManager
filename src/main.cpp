@@ -8,7 +8,14 @@
 int main(){
     std::string line;
 
-    // main loop
+    // Start message
+    std::cout << std::endl;
+    std::cout << "***************************************" << std::endl;
+    std::cout << "*  CLI FILE MANAGER - DEVELOPED BY    *" << std::endl;
+    std::cout << "*              FANIS FLAM             *" << std::endl;
+    std::cout << "***************************************" << std::endl << std::endl;
+
+    // Main loop
     while(!exitCli){
         std::cout << std::filesystem::current_path().string() << ">";
         std::getline(std::cin, line);
