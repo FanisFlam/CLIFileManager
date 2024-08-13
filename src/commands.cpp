@@ -3,10 +3,11 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <unordered_map>
 
 // ~~~~ handling command functions ~~~~
 // executes code based on command
-void handleCommand(const Command& command, const std::vector<std::string>& args){
+void handleCommand(const Command &command, const std::vector<std::string> &args){
     switch(command){
         case exit_cli:
             exitCli = true;
@@ -30,10 +31,16 @@ void handleCommand(const Command& command, const std::vector<std::string>& args)
             printToScreen(args);
             break;
         case touch:
-            createFile(args);
+            createFile(command, args);
             break;
         case rm:
-            removeFile(args);
+            removeFile(command, args);
+            break;
+        case mkdir:
+            makeDir(args);
+            break;
+        case rmdir:
+            removeDir(command, args);
             break;
         case undefined:
             std::cout << "Please provide a valid command." << std::endl;
@@ -42,36 +49,38 @@ void handleCommand(const Command& command, const std::vector<std::string>& args)
 }
 
 // returns an enum form of the command for the switch statement in the handleCommand()
-Command decodeCommand(const std::string& command){
-    if(command == "exit")
-        return exit_cli;
-    if(command == "cd")
-        return cd;
-    if(command == "ls")
-        return ls;
-    if(command == "pwd")
-        return pwd;
-    if(command == "echo")
-        return echo;
-    if(command == "touch")
-        return touch;
-    if(command == "rm")
-        return rm;
-    if(command == "clear")
-        return clear;
+Command decodeCommand(const std::string &command){
+    static const std::unordered_map<std::string, Command> commandList = {
+        {"exit", exit_cli},
+        {"cd", cd},
+        {"ls", ls},
+        {"pwd", pwd},
+        {"echo", echo},
+        {"touch", touch},
+        {"rm", rm},
+        {"mkdir", mkdir},
+        {"rmdir", rmdir},
+        {"clear", clear}
+    };
+
+    auto it = commandList.find(command);
+    if(it != commandList.end()){
+        return it->second;
+    }
+
     return undefined;
 }
 
 // ~~~~ execution functions ~~~~
 //cd command
-void changeDir(const std::filesystem::path& path){
+void changeDir(const std::filesystem::path &path){
     if(std::filesystem::exists(path)){
         std::filesystem::current_path(path);
     }
 }
 
 // ls command
-void listFiles(const std::filesystem::path& path){
+void listFiles(const std::filesystem::path &path){
     for (const auto &entry : std::filesystem::directory_iterator(path)){
         std::cout << entry.path().filename().string() << "  ";
     }
@@ -96,22 +105,52 @@ void printToScreen(const std::vector<std::string>& args){
     std::cout << text.str() << std::endl;
 }
 
-void createFile(const std::vector<std::string>& filenames){
-    for(const std::string& filename : filenames){
-        std::ofstream file(filename);
+// touch command
+void createFile(const Command &command, const std::vector<std::string> &filenames){
+    if(filenames.size() > 0){
+        for(const std::string& filename : filenames){
+            std::ofstream file(filename);
 
-        file.close();
+            file.close();
+        }
+    } else {
+        throwError(command, "missing file operand");
     }
 }
 
-void removeFile(const std::vector<std::string>& filenames){
+// rm command
+void removeFile(const Command& command, const std::vector<std::string>& filenames){
     if(filenames.size() > 0){
         for(const std::string& filename : filenames){
             std::filesystem::remove(filename);
         }
     } else {
-        std::cout << "rm: missing operand" << std::endl;
+        throwError(command, "missing operand");
     }
+}
+
+// mkdir command
+void makeDir(const std::vector<std::string> &filenames){
+    for(const std::string& filename : filenames){
+        std::filesystem::create_directory(filename);
+    }
+}
+
+// rmdir command
+void removeDir(const Command& command, const std::vector<std::string> &filenames){
+    if(filenames.size() <= 0){
+        throwError(command, "missing operand");
+        return;
+    }
+
+    for(const std::string &filename : filenames){
+        std::filesystem::remove(filename);
+    }
+}
+
+// throwing errors
+void throwError(const Command& command, const std::string& err){
+    std::cerr << command << ": " << err << std::endl;
 }
 
 // clear command

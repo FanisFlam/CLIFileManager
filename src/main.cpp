@@ -10,7 +10,7 @@ int main(){
 
     // main loop
     while(!exitCli){
-        std::cout << std::filesystem::current_path() << ">";
+        std::cout << std::filesystem::current_path().string() << ">";
         std::getline(std::cin, line);
 
         std::vector<std::string> args = splitInput(line);
