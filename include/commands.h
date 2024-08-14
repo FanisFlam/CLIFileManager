@@ -36,8 +36,8 @@ void createFile(const Command &command, const std::vector<std::string> &filename
 void removeFile(const Command &command, const std::vector<std::string> &args);
 
 // directory commands
-void makeDir(const std::vector<std::string> &filenames);
-void removeDir(const Command &command, const std::vector<std::string> &filenames);
+void makeDir(const Command& command, const std::vector<std::string> &dirnames);
+void removeDir(const Command &command, const std::vector<std::string> &dirnames);
 
 // command errors
 void throwError(const Command &command, const std::string& err);

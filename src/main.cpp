@@ -25,6 +25,7 @@ int main(){
         // extracting the first word - the command
         std::string command = args[0];
 
+        args.erase(args.begin());
         handleCommand(decodeCommand(command), args);
     }
 

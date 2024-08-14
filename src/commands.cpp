@@ -13,11 +13,11 @@ void handleCommand(const Command &command, const std::vector<std::string> &args)
             exitCli = true;
             break;
         case cd:
-            changeDir(args[1]);
+            changeDir(args[0]);
             break;
         case ls:
-            if(args.size() > 1 && std::filesystem::exists(args[1]) && args[1] != "")
-                listFiles(args[1]);
+            if(args.size() > 1 && std::filesystem::exists(args[0]) && args[0] != "")
+                listFiles(args[0]);
             else
                 listFiles(std::filesystem::current_path());
             break;
@@ -37,7 +37,7 @@ void handleCommand(const Command &command, const std::vector<std::string> &args)
             removeFile(command, args);
             break;
         case mkdir:
-            makeDir(args);
+            makeDir(command, args);
             break;
         case rmdir:
             removeDir(command, args);
@@ -89,15 +89,15 @@ void listFiles(const std::filesystem::path &path){
 
 // echo command
 void printToScreen(const std::vector<std::string>& args){
-    if(args.size() <= 1){
+    if(args.size() == 0){
         std::cout << std::endl;
         return;
     }
 
     std::ostringstream text;
-    for (size_t i = 1; i < args.size(); i++)
+    for (size_t i = 0; i < args.size(); i++)
     {
-        if(i > 1){
+        if(i > 0){
             text << " ";
         }
         text << args[i];
@@ -107,44 +107,78 @@ void printToScreen(const std::vector<std::string>& args){
 
 // touch command
 void createFile(const Command &command, const std::vector<std::string> &filenames){
-    if(filenames.size() > 0){
-        for(const std::string& filename : filenames){
-            std::ofstream file(filename);
-
-            file.close();
-        }
-    } else {
+    // if user doesn't provide files to be created
+    if(filenames.size() <= 0){
         throwError(command, "missing file operand");
+        return;
+    }
+
+    for(const std::string& filename : filenames){
+        std::ofstream file(filename);
+
+        file.close();
     }
 }
 
 // rm command
 void removeFile(const Command& command, const std::vector<std::string>& filenames){
-    if(filenames.size() > 0){
-        for(const std::string& filename : filenames){
-            std::filesystem::remove(filename);
-        }
-    } else {
+    // if user doesn't provide files to be deleted
+    if(filenames.size() <= 0){
         throwError(command, "missing operand");
+    }
+
+    // delete each file if exists
+    for(const std::string& filename : filenames){
+        try {
+            if(!std::filesystem::exists(filename)){
+                throwError(command, "cannot remove '" + filename + "': No such file or directory");
+                continue;
+            }
+            
+            if(std::filesystem::is_directory(filename)){
+                throwError(command, "cannot remove '" + filename + "': Is a directory");
+                continue;
+            }
+
+            std::filesystem::remove(filename);
+        } catch(const std::filesystem::filesystem_error& e){
+            throwError(command, "Failed to remove " + filename + ": " + e.what());
+        }
     }
 }
 
 // mkdir command
-void makeDir(const std::vector<std::string> &filenames){
-    for(const std::string& filename : filenames){
-        std::filesystem::create_directory(filename);
+void makeDir(const Command& command, const std::vector<std::string> &dirnames){
+    // if user doesn't provide directories to be created
+    if(dirnames.size() <= 0){
+        throwError(command, "missing operand");
+    }
+
+    for(const std::string& dirname : dirnames){
+        if(!std::filesystem::exists(dirname)){
+            throwError(command, "failed to remove '" + dirname + "': No such file or directory");
+            continue;
+        }
+        
+        std::filesystem::create_directory(dirname);
     }
 }
 
 // rmdir command
-void removeDir(const Command& command, const std::vector<std::string> &filenames){
-    if(filenames.size() <= 0){
+void removeDir(const Command& command, const std::vector<std::string> &dirnames){
+    // if user doesn't provide directories to be deleted
+    if(dirnames.size() <= 0){
         throwError(command, "missing operand");
         return;
     }
 
-    for(const std::string &filename : filenames){
-        std::filesystem::remove(filename);
+    for(const std::string &dirname : dirnames){
+        if(!std::filesystem::is_directory(dirname)){
+            throwError(command, "failed to remove '" + dirname + "': Not a directory");
+            continue;
+        }
+
+        std::filesystem::remove(dirname);
     }
 }
 
