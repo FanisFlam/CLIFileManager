@@ -22,7 +22,7 @@ void handleCommand(const Command &command, const std::vector<std::string> &args)
                 listFiles(std::filesystem::current_path());
             break;
         case pwd:
-            std::cout << std::filesystem::current_path() << std::endl;
+            std::cout << std::filesystem::current_path().string() << std::endl;
             break;
         case clear:
             clearScreen();
