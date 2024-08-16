@@ -7,8 +7,8 @@
 
 // ~~~~ handling command functions ~~~~
 // executes code based on command
-void handleCommand(const Command &command, const std::vector<std::string> &args){
-    switch(command){
+void handleCommand(const std::string &command, const std::vector<std::string> &args){
+    switch(decodeCommand(command)){
         case exit_cli:
             exitCli = true;
             break;
@@ -42,6 +42,9 @@ void handleCommand(const Command &command, const std::vector<std::string> &args)
         case rmdir:
             removeDir(command, args);
             break;
+        case mv:
+            move(command, args);
+            break;
         case undefined:
             std::cout << "Please provide a valid command." << std::endl;
             break;
@@ -60,6 +63,7 @@ Command decodeCommand(const std::string &command){
         {"rm", rm},
         {"mkdir", mkdir},
         {"rmdir", rmdir},
+        {"mv", mv},
         {"clear", clear}
     };
 
@@ -106,7 +110,7 @@ void printToScreen(const std::vector<std::string>& args){
 }
 
 // touch command
-void createFile(const Command &command, const std::vector<std::string> &filenames){
+void createFile(const std::string &command, const std::vector<std::string> &filenames){
     // if user doesn't provide files to be created
     if(filenames.size() <= 0){
         throwError(command, "missing file operand");
@@ -121,7 +125,7 @@ void createFile(const Command &command, const std::vector<std::string> &filename
 }
 
 // rm command
-void removeFile(const Command& command, const std::vector<std::string>& filenames){
+void removeFile(const std::string &command, const std::vector<std::string>& filenames){
     // if user doesn't provide files to be deleted
     if(filenames.size() <= 0){
         throwError(command, "missing operand");
@@ -148,24 +152,19 @@ void removeFile(const Command& command, const std::vector<std::string>& filename
 }
 
 // mkdir command
-void makeDir(const Command& command, const std::vector<std::string> &dirnames){
+void makeDir(const std::string &command, const std::vector<std::string> &dirnames){
     // if user doesn't provide directories to be created
     if(dirnames.size() <= 0){
         throwError(command, "missing operand");
     }
 
     for(const std::string& dirname : dirnames){
-        if(!std::filesystem::exists(dirname)){
-            throwError(command, "failed to remove '" + dirname + "': No such file or directory");
-            continue;
-        }
-        
         std::filesystem::create_directory(dirname);
     }
 }
 
 // rmdir command
-void removeDir(const Command& command, const std::vector<std::string> &dirnames){
+void removeDir(const std::string &command, const std::vector<std::string> &dirnames){
     // if user doesn't provide directories to be deleted
     if(dirnames.size() <= 0){
         throwError(command, "missing operand");
@@ -182,8 +181,46 @@ void removeDir(const Command& command, const std::vector<std::string> &dirnames)
     }
 }
 
+// mv command
+void move(const std::string &command, const std::vector<std::string> &args){
+    try {
+        if(args.size() <= 0){
+            throwError(command, "missing file operand");
+            return;
+        }
+
+        if(args.size() == 1){
+            throwError(command, "missing destination file operand after '" + args[0] + "'");
+            return;
+        }
+
+        for(const auto& item : args){
+            if (!std::filesystem::exists(item)){
+                throwError(command, "cannot move '" + item + "': No such file or directory");
+                return;
+            }
+        }
+
+        std::filesystem::path destination = args[args.size() - 1];
+
+        std::filesystem::path source;
+        for (int i = 0; i < args.size() - 1; i++){
+            if(std::filesystem::is_directory(destination)){
+                destination = args[args.size() - 1];
+                source = args[i];
+                destination /= source.filename();
+            } else {
+                source = args[i];
+            }
+            std::filesystem::rename(source, destination);
+        }
+    } catch(const std::filesystem::filesystem_error& e){
+        throwError(command, e.what());
+    }
+}
+
 // throwing errors
-void throwError(const Command& command, const std::string& err){
+void throwError(const std::string &command, const std::string& err){
     std::cerr << command << ": " << err << std::endl;
 }
 

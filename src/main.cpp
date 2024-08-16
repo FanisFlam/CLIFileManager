@@ -26,7 +26,7 @@ int main(){
         std::string command = args[0];
 
         args.erase(args.begin());
-        handleCommand(decodeCommand(command), args);
+        handleCommand(command, args);
     }
 
     return 0;

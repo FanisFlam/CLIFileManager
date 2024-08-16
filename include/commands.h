@@ -18,12 +18,13 @@ enum Command
     rm,
     mkdir,
     rmdir,
+    mv,
     clear,
     undefined
 };
 
 // handling the command
-void handleCommand(const Command &command, const std::vector<std::string> &args);
+void handleCommand(const std::string &command, const std::vector<std::string> &args);
 Command decodeCommand(const std::string &command);
 
 // execution functions
@@ -32,15 +33,18 @@ void listFiles(const std::filesystem::path &path);
 void printToScreen(const std::vector<std::string> &args);
 
 // file commands
-void createFile(const Command &command, const std::vector<std::string> &filenames);
-void removeFile(const Command &command, const std::vector<std::string> &args);
+void createFile(const std::string &command, const std::vector<std::string> &filenames);
+void removeFile(const std::string &command, const std::vector<std::string> &args);
 
 // directory commands
-void makeDir(const Command& command, const std::vector<std::string> &dirnames);
-void removeDir(const Command &command, const std::vector<std::string> &dirnames);
+void makeDir(const std::string &command, const std::vector<std::string> &dirnames);
+void removeDir(const std::string &command, const std::vector<std::string> &dirnames);
+
+// move command
+void move(const std::string &command, const std::vector<std::string> &args);
 
 // command errors
-void throwError(const Command &command, const std::string& err);
+void throwError(const std::string &command, const std::string& err);
 
 // clear screen
 void clearScreen();
