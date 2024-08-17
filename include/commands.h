@@ -24,7 +24,7 @@ enum Command
 };
 
 // handling the command
-void handleCommand(const std::string &command, const std::vector<std::string> &args);
+void handleCommand(const std::string &command, const std::vector<std::string> &args, const std::vector<char> &flags);
 Command decodeCommand(const std::string &command);
 
 // execution functions

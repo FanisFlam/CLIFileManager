@@ -26,7 +26,12 @@ int main(){
         std::string command = args[0];
 
         args.erase(args.begin());
-        handleCommand(command, args);
+
+        // extracting flags
+        std::vector<char> flags = extractFlags(args);
+
+        // execute command
+        handleCommand(command, args, flags);
     }
 
     return 0;

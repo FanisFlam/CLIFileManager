@@ -17,3 +17,16 @@ std::vector<std::string> splitInput(const std::string& line){
 
     return tokens;
 }
+
+std::vector<char> extractFlags(std::vector<std::string> args){
+    std::vector<char> flags;
+
+    for(std::string& arg : args){
+        if(arg[0] == '-'){
+            arg.erase(0, 1);
+            flags.insert(flags.end(), arg.begin(), arg.end());
+        }
+    }
+
+    return flags;
+}
