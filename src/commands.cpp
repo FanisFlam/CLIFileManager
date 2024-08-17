@@ -7,13 +7,13 @@
 
 // ~~~~ handling command functions ~~~~
 // executes code based on command
-void handleCommand(const std::string &command, const std::vector<std::string> &args){
+void handleCommand(const std::string &command, const std::vector<std::string> &args, const std::vector<char> &flags){
     switch(decodeCommand(command)){
         case exit_cli:
             exitCli = true;
             break;
         case cd:
-            changeDir(args[0]);
+            changeDir(command, args);
             break;
         case ls:
             if(args.size() > 1 && std::filesystem::exists(args[0]) && args[0] != "")
@@ -77,7 +77,13 @@ Command decodeCommand(const std::string &command){
 
 // ~~~~ execution functions ~~~~
 //cd command
-void changeDir(const std::filesystem::path &path){
+void changeDir(const std::string &command, const std::vector<std::string> &args){
+    if(args.size() > 1){
+        throwError(command, "too many arguments");
+        return;
+    }
+
+    const std::filesystem::path path = args[0];
     if(std::filesystem::exists(path)){
         std::filesystem::current_path(path);
     }

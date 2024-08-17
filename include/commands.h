@@ -28,7 +28,7 @@ void handleCommand(const std::string &command, const std::vector<std::string> &a
 Command decodeCommand(const std::string &command);
 
 // execution functions
-void changeDir(const std::filesystem::path &path);
+void changeDir(const std::string &command, const std::vector<std::string> &args);
 void listFiles(const std::filesystem::path &path);
 void printToScreen(const std::vector<std::string> &args);
 
