@@ -29,7 +29,7 @@ Command decodeCommand(const std::string &command);
 
 // execution functions
 void changeDir(const std::string &command, const std::vector<std::string> &args);
-void listFiles(const std::filesystem::path &path);
+void listFiles(const std::filesystem::path &path, const std::vector<char> &flags);
 void printToScreen(const std::vector<std::string> &args);
 
 // file commands

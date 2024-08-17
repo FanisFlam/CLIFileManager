@@ -1,7 +1,8 @@
-#include <iostream>
 #include "utilities.h"
 
+#include <iostream>
 #include <sstream>
+#include <algorithm>
 
 bool exitCli = false;
 
@@ -29,4 +30,8 @@ std::vector<char> extractFlags(std::vector<std::string> args){
     }
 
     return flags;
+}
+
+bool containsFlag(const std::vector<char> &flags, const char &flag){
+    return std::find(flags.begin(), flags.end(), flag) != flags.end();
 }

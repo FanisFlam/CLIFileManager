@@ -5,6 +5,8 @@
 #include <fstream>
 #include <unordered_map>
 
+#include "utilities.h"
+
 // ~~~~ handling command functions ~~~~
 // executes code based on command
 void handleCommand(const std::string &command, const std::vector<std::string> &args, const std::vector<char> &flags){
@@ -17,9 +19,9 @@ void handleCommand(const std::string &command, const std::vector<std::string> &a
             break;
         case ls:
             if(args.size() > 1 && std::filesystem::exists(args[0]) && args[0] != "")
-                listFiles(args[0]);
+                listFiles(args[0], flags);
             else
-                listFiles(std::filesystem::current_path());
+                listFiles(std::filesystem::current_path(), flags);
             break;
         case pwd:
             std::cout << std::filesystem::current_path().string() << std::endl;
@@ -90,9 +92,11 @@ void changeDir(const std::string &command, const std::vector<std::string> &args)
 }
 
 // ls command
-void listFiles(const std::filesystem::path &path){
+void listFiles(const std::filesystem::path &path, const std::vector<char> &flags){
     for (const auto &entry : std::filesystem::directory_iterator(path)){
-        std::cout << entry.path().filename().string() << "  ";
+        if (entry.path().filename().string()[0] != '.' || containsFlag(flags, 'a')){
+           std::cout << entry.path().filename().string() << "  ";        
+        }
     }
     std::cout << std::endl;
 }
